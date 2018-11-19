@@ -11,6 +11,10 @@ class UsersController extends Controller
      public function index()
     {
         $users = User::paginate(10);
+        
+        return view('users.index', [
+            'users' => $users,
+        ]);
     }
     
      public function show($id)
@@ -26,16 +30,8 @@ class UsersController extends Controller
         $data += $this->counts($user);
         
         return view('users.show', $data);
-
-
-
-        return view('users.show', [
-            'user' => $user,
-        ]);
     }
  
 }        
-        return view('users.index', [
-            'users' => $users,
-        ]);
+        
 
