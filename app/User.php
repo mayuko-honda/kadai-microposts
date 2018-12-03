@@ -41,6 +41,12 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
     }
     
+     public function Favorites()
+    {
+        return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
+    }
+    
+    
     public function follow($userId)
     {
         // 既にフォローしているかの確認
@@ -74,11 +80,47 @@ class User extends Authenticatable
             return false;
         }
     }
+    
+    public function favorite($userId)
+    {
+        // 既にフォローしているかの確認
+        $exist = $this->is_favoriting($userId);
+        // 自分自身ではないかの確認
+        $its_me = $this->id == $userId;
+
+        if ($exist || $its_me) {
+            // 既にフォローしていれば何もしない
+            return false;
+        } else {
+            // 未フォローであればフォローする
+            $this->favoritings()->attach($userId);
+            return true;
+        }
+    }
+
+    public function unfavorite($userId)
+    {
+        // 既にフォローしているかの確認
+        $exist = $this->is_favoriting($userId);
+        // 自分自身ではないかの確認
+        $its_me = $this->id == $userId;
+
+        if ($exist && !$its_me) {
+            // 既にフォローしていればフォローを外す
+            $this->favoritings()->detach($userId);
+            return true;
+        } else {
+            // 未フォローであれば何もしない
+            return false;
+        }
+    }
 
     public function is_following($userId)
     {
         return $this->followings()->where('follow_id', $userId)->exists();
     }
+    
+    
     
     public function feed_microposts()
     {
