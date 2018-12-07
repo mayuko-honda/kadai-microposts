@@ -21,7 +21,9 @@
                         {!! Form::close() !!}
                     @endif
                 </div>
+                
                 <div class="col-xs-5">
+                    
                     @include('user_favorite.favorite_button', ['micropost' => $micropost])
                 </div>
             </div>
