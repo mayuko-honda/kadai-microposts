@@ -41,12 +41,7 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
     }
     
-     public function favorites()
-    {
-        return $this->belongsToMany(Micropost::class, 'user_favorite', 'micropost_id', 'user_id')->withTimestamps();
-    }
-    
-    public function favoritings()
+    public function favorites()
     {
         return $this->belongsToMany(Micropost::class, 'user_favorite', 'user_id', 'micropost_id')->withTimestamps();
     }
@@ -73,7 +68,7 @@ class User extends Authenticatable
     public function unfollow($userId)
     {
         // 既にフォローしているかの確認
-        $exist = $this->is_following($userId);
+        $exist = $this->is_favorite($userId);
         // 自分自身ではないかの確認
         $its_me = $this->id == $userId;
 
@@ -90,7 +85,7 @@ class User extends Authenticatable
     public function favorite($micropostId)
     {
         // 既にフォローしているかの確認
-        $exist = $this->is_favoriting($micropostId);
+        $exist = $this->is_favorite($micropostId);
        
 
         if ($exist ) {
@@ -98,7 +93,7 @@ class User extends Authenticatable
             return false;
         } else {
             // 未フォローであればフォローする
-            $this->favoritings()->attach($micropostId);
+            $this->favorites()->attach($micropostId);
             return true;
         }
     }
@@ -106,12 +101,12 @@ class User extends Authenticatable
     public function unfavorite($micropostId)
     {
         // 既にフォローしているかの確認
-        $exist = $this->is_favoriting($micropostId);
+        $exist = $this->is_favorite($micropostId);
         
 
         if ($exist ) {
             // 既にフォローしていればフォローを外す
-            $this->favoritings()->detach($micropostId);
+            $this->favorites()->detach($micropostId);
             return true;
         } else {
             // 未フォローであれば何もしない
@@ -124,12 +119,12 @@ class User extends Authenticatable
         return $this->followings()->where('follow_id', $userId)->exists();
     }
     
-    public function is_favoriting($micropostId)
+    public function is_favorite($micropostId)
     {
-        return $this->favoritings()->where('micropost_id', $micropostId)->exists();
+        return $this->favorites()->where('micropost_id', $micropostId)->exists();
     }
     
-    
+
     public function feed_microposts()
     {
         $follow_user_ids = $this->followings()-> pluck('users.id')->toArray();
